@@ -3,29 +3,220 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>A Masmorra da Chave Partida</title>
-  <style>
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: system-ui, sans-serif;
-      background: #1b1b22;
-      color: #e8e6e3;
-      text-align: center;
-      padding: 16px;
-    }
-    h1 { margin-bottom: 0.25em; }
-    p { color: #a8a5a0; }
-  </style>
+  <title>A Masmorra da Chave Partida · Autômato de Pilha</title>
+  <meta name="description" content="Jogo web cuja lógica é um autômato de pilha (PDA): explore a masmorra com WASD ou processe um roteiro de letras.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+Sans+SC:wght@500;700&family=Grenze+Gotisch:wght@500;700&display=swap">
+  <link rel="stylesheet" href="css/estilo.css">
 </head>
 <body>
-  <main>
-    <h1>A Masmorra da Chave Partida</h1>
-    <p>Jogo com autômato de pilha (PDA) — Linguagens Formais e Autômatos, IFC</p>
-    <p>Em construção.</p>
+
+  <header class="topo">
+    <div class="marca">
+      <h1>A Masmorra da Chave Partida</h1>
+      <p>Um jogo cuja lógica é um autômato de pilha</p>
+    </div>
+
+    <div class="modos" role="tablist" aria-label="Modo de jogo">
+      <button type="button" role="tab" id="aba-explorar" aria-selected="true" aria-controls="barra-explorar">
+        Explorar <span class="modos__dica">teclas WASD</span>
+      </button>
+      <button type="button" role="tab" id="aba-roteiro" aria-selected="false" aria-controls="barra-roteiro">
+        Roteiro <span class="modos__dica">sequência de letras</span>
+      </button>
+    </div>
+
+    <button type="button" class="botao botao--sereno" id="btn-reiniciar">Reiniciar</button>
+  </header>
+
+  <main class="palco">
+
+    <!-- ============ Mapa da masmorra ============ -->
+    <section class="masmorra" aria-label="Mapa da masmorra">
+      <div class="moldura moldura--mapa">
+        <div class="mapa" id="mapa-area">
+          <canvas id="mapa" aria-label="Mapa da masmorra. Use W, A, S e D para mover o aventureiro." role="img"></canvas>
+
+          <p class="mapa__sala" id="faixa-sala" aria-live="polite"></p>
+
+          <div class="mapa__dica" id="dica-mapa">
+            <p>Ande com <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>. Andar não gera símbolo: só encostar num objeto gera.</p>
+          </div>
+
+          <div class="desfecho" id="desfecho" hidden>
+            <div class="desfecho__corpo">
+              <p class="desfecho__veredito" id="desfecho-veredito"></p>
+              <p class="desfecho__texto" id="desfecho-texto"></p>
+              <p class="desfecho__formal" id="desfecho-formal"></p>
+              <p class="desfecho__roteiro">Roteiro gerado: <code id="desfecho-roteiro"></code></p>
+              <div class="desfecho__acoes">
+                <button type="button" class="botao botao--tocha" id="btn-desfecho-reiniciar">Jogar de novo</button>
+                <button type="button" class="botao" id="btn-desfecho-roteiro">Rever passo a passo</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra do modo Explorar: roteiro gerado em tempo real -->
+      <div class="barra" id="barra-explorar" role="tabpanel" aria-labelledby="aba-explorar">
+        <div class="fita-rotulo">
+          <span>Roteiro gerado</span>
+          <button type="button" class="botao botao--leve" id="btn-levar-roteiro" disabled>Abrir no modo Roteiro</button>
+        </div>
+        <ol class="fita" id="fita-explorar" aria-label="Símbolos gerados pelo movimento"></ol>
+        <div class="dpad" aria-label="Controles de toque">
+          <button type="button" data-dir="cima" aria-label="Mover para cima">W</button>
+          <button type="button" data-dir="esquerda" aria-label="Mover para a esquerda">A</button>
+          <button type="button" data-dir="baixo" aria-label="Mover para baixo">S</button>
+          <button type="button" data-dir="direita" aria-label="Mover para a direita">D</button>
+        </div>
+      </div>
+
+      <!-- Barra do modo Roteiro: letras digitadas -->
+      <div class="barra" id="barra-roteiro" role="tabpanel" aria-labelledby="aba-roteiro" hidden>
+        <div class="roteiro">
+          <label class="roteiro__rotulo" for="entrada-roteiro">Roteiro</label>
+          <input class="roteiro__campo" id="entrada-roteiro" type="text" inputmode="text" autocomplete="off"
+                 spellcheck="false" maxlength="40" placeholder="ex.: *saasasbc">
+          <div class="roteiro__passos" role="group" aria-label="Navegar pela execução">
+            <button type="button" class="botao" id="btn-inicio" title="Voltar ao início (Home)">Início</button>
+            <button type="button" class="botao" id="btn-voltar" title="Passo anterior (seta para a esquerda)">Voltar</button>
+            <button type="button" class="botao botao--tocha" id="btn-executar">Executar</button>
+            <button type="button" class="botao" id="btn-avancar" title="Próximo passo (seta para a direita)">Avançar</button>
+            <button type="button" class="botao" id="btn-fim" title="Ir ao resultado (End)">Fim</button>
+          </div>
+        </div>
+        <ol class="fita" id="fita-roteiro" aria-label="Símbolos do roteiro"></ol>
+        <div class="exemplos">
+          <span class="exemplos__titulo">Experimente</span>
+          <ul class="exemplos__lista" id="exemplos"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Placa do autômato (fixa nos dois modos) ============ -->
+    <aside class="moldura placa" aria-label="Autômato de pilha em tempo real">
+      <div class="placa__linha placa__estado">
+        <span class="rotulo">Estado atual</span>
+        <p class="estado"><strong id="p-estado">q0</strong> <span id="p-sala">Entrada</span></p>
+      </div>
+
+      <div class="placa__linha placa__simbolo">
+        <span class="rotulo">Símbolo processado</span>
+        <p class="simbolo">
+          <span class="simbolo__glifo" id="p-simbolo">–</span>
+          <span class="simbolo__acao" id="p-acao">Nenhum símbolo lido ainda</span>
+        </p>
+      </div>
+
+      <div class="placa__linha placa__pilha">
+        <span class="rotulo">Pilha <small>topo no alto</small></span>
+        <ol class="pilha" id="p-pilha" aria-live="polite"></ol>
+      </div>
+
+      <div class="placa__linha placa__regra">
+        <span class="rotulo">Transição usada</span>
+        <p class="regra" id="p-regra">Nenhuma ainda. O autômato está na configuração inicial (q0, Z).</p>
+      </div>
+
+      <div class="veredito" id="p-veredito" aria-live="polite">
+        <p class="veredito__titulo" id="p-veredito-titulo">Em curso</p>
+        <p class="veredito__texto" id="p-veredito-texto">Explore a masmorra: cada interação vira um passo do autômato.</p>
+        <p class="veredito__formal" id="p-veredito-formal"></p>
+      </div>
+    </aside>
   </main>
+
+  <!-- ============ Tomo: enredo, regras e definição formal ============ -->
+  <div class="tomo">
+
+    <section class="secao secao--enredo" aria-labelledby="t-enredo">
+      <h2 id="t-enredo">O enredo</h2>
+      <div class="colunas">
+        <p>A chave mestra da masmorra foi quebrada em pedaços e espalhada pelas salas. O aventureiro pega a <strong>estrela-selo</strong> na Entrada, sem ela nenhuma saída se abre, e escolhe o caminho: o <strong>corredor</strong> que leva à Ala Oeste ou o <strong>portal azul</strong> que leva à Ala Leste. As duas alas desembocam na Galeria Central.</p>
+        <p>Pelo caminho ele junta exatamente <strong>3 pedaços</strong>, que se encaixam na mochila até formar a chave mestra, abre a porta do Salão e foge pelo portal final. A chave tem só 3 encaixes: há 4 pedaços ao alcance em qualquer caminho, e um 4º pedaço quebra a chave. As grades se fecham atrás do aventureiro; não há volta.</p>
+      </div>
+    </section>
+
+    <section class="secao" aria-labelledby="t-jogar">
+      <h2 id="t-jogar">Como jogar</h2>
+      <div class="colunas colunas--assimetricas">
+        <div>
+          <p><strong>Explorar:</strong> ande com <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> (ou as setas). Andar não gera símbolo. O símbolo nasce quando o aventureiro encosta num objeto, e o autômato o processa na hora. Sem transição possível, a execução é <strong>rejeitada</strong>; ao cruzar o portal final, é <strong>aceita</strong>.</p>
+          <p><strong>Roteiro:</strong> digite a sequência de símbolos (ex.: <code>*saasasbc</code>) e acompanhe o processamento passo a passo, com o mesmo painel. No JFLAP não existe WASD: lá se testam essas mesmas palavras, com o mesmo resultado.</p>
+          <p class="nota">A tecla <kbd>S</kbd> só move o aventureiro para baixo. O símbolo <code>s</code> é gerado ao atravessar uma passagem. Enquanto o campo do roteiro está em foco, o teclado não move o aventureiro.</p>
+        </div>
+        <table class="tabela tabela--legenda">
+          <caption>Alfabeto de entrada Σ: cada letra é uma ação do jogo</caption>
+          <thead><tr><th scope="col">Símbolo</th><th scope="col">Ação no mapa</th><th scope="col">Efeito</th></tr></thead>
+          <tbody id="legenda-sigma"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="secao" aria-labelledby="t-formal">
+      <h2 id="t-formal">Definição formal</h2>
+      <div class="colunas colunas--assimetricas">
+        <div>
+          <p class="tupla">M = (Q, Σ, Γ, δ, q<sub>0</sub>, Z, F)</p>
+          <dl class="definicao" id="definicao"></dl>
+          <p><strong>Critério de aceitação: por estado final.</strong> O roteiro é aceito se, ao consumir toda a entrada, o autômato estiver em q6. A pilha termina com Z, mas isso não é exigido. O autômato é <strong>determinístico</strong>: em cada estado, para cada par (símbolo, topo), existe no máximo uma transição.</p>
+        </div>
+        <table class="tabela tabela--gama">
+          <caption>Alfabeto da pilha Γ: o que pode estar na mochila</caption>
+          <thead><tr><th scope="col">Símbolo</th><th scope="col">Significado</th></tr></thead>
+          <tbody id="legenda-gama"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="secao" aria-labelledby="t-delta">
+      <h2 id="t-delta">Transições δ</h2>
+      <p class="secao__intro">Notação do JFLAP: <code>entrada, desempilha ; empilha</code>, com λ para vazio. Passe o mouse numa regra para destacá-la no diagrama. A regra usada no passo atual fica acesa.</p>
+      <div class="rolagem">
+        <table class="tabela tabela--delta">
+          <thead>
+            <tr><th scope="col">Nº</th><th scope="col">De</th><th scope="col">Para</th><th scope="col">Rótulo JFLAP</th><th scope="col">δ</th><th scope="col">Significado</th></tr>
+          </thead>
+          <tbody id="tabela-delta"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="secao" aria-labelledby="t-diagrama">
+      <h2 id="t-diagrama">Diagrama de estados</h2>
+      <p class="secao__intro">Redesenhado a partir do arquivo <a href="jflap/masmorra-chave-partida.jff" download>masmorra-chave-partida.jff</a>, com o estado atual aceso. Abaixo, a imagem exportada do JFLAP.</p>
+      <div class="moldura moldura--diagrama">
+        <svg class="diagrama" id="diagrama" viewBox="0 30 1300 640" role="img" aria-label="Diagrama de estados do autômato de pilha"></svg>
+      </div>
+      <figure class="jflap">
+        <img src="img/diagrama-jflap.png" alt="Diagrama do autômato exportado do JFLAP" id="img-jflap" loading="lazy">
+        <figcaption>Diagrama exportado do JFLAP 7.1.</figcaption>
+      </figure>
+    </section>
+
+    <section class="secao" aria-labelledby="t-rastreio">
+      <h2 id="t-rastreio">Rastreio da execução</h2>
+      <p class="secao__intro" id="rastreio-intro">Cada linha é uma configuração do autômato. Pilha com o topo à esquerda, como no JFLAP.</p>
+      <div class="rolagem">
+        <table class="tabela tabela--rastreio">
+          <thead><tr><th scope="col">Passo</th><th scope="col">Estado</th><th scope="col">Sala</th><th scope="col">Lido</th><th scope="col">Pilha</th><th scope="col">Regra</th></tr></thead>
+          <tbody id="rastreio"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <footer class="rodape">
+    <p>Trabalho 2 de Linguagens Formais e Autômatos, IFC. HTML, CSS e JavaScript puros, publicados no GitHub Pages.</p>
+    <p><a href="jflap/masmorra-chave-partida.jff" download>Baixar o arquivo do JFLAP (.jff)</a></p>
+  </footer>
+
+  <script src="js/pda.js"></script>
+  <script src="js/mapa.js"></script>
+  <script src="js/painel.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
