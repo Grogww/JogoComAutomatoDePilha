@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--Created with JFLAP 7.1.--><structure>
+	<type>pda</type>
+	<automaton>
+		<!--The list of states.-->
+		<state id="0" name="q0">
+			<x>100.0</x>
+			<y>250.0</y>
+			<label>Entrada</label>
+			<initial/>
+		</state>
+		<state id="1" name="q1">
+			<x>320.0</x>
+			<y>120.0</y>
+			<label>Ala Oeste</label>
+		</state>
+		<state id="2" name="q2">
+			<x>320.0</x>
+			<y>400.0</y>
+			<label>Ala Leste</label>
+		</state>
+		<state id="3" name="q3">
+			<x>540.0</x>
+			<y>250.0</y>
+			<label>Galeria Central</label>
+		</state>
+		<state id="4" name="q4">
+			<x>760.0</x>
+			<y>250.0</y>
+			<label>Salão da Porta</label>
+		</state>
+		<state id="5" name="q5">
+			<x>980.0</x>
+			<y>250.0</y>
+			<label>Câmara do Portal</label>
+		</state>
+		<state id="6" name="q6">
+			<x>1200.0</x>
+			<y>250.0</y>
+			<label>Liberdade</label>
+			<final/>
+		</state>
+		<!--The list of transitions.-->
+		<!--1: pega a estrela-selo-->
+		<transition>
+			<from>0</from>
+			<to>0</to>
+			<read>*</read>
+			<pop>Z</pop>
+			<push>EZ</push>
+		</transition>
+		<!--2: o corredor para a Ala Oeste so abre com o selo-->
+		<transition>
+			<from>0</from>
+			<to>1</to>
+			<read>s</read>
+			<pop>E</pop>
+			<push>E</push>
+		</transition>
+		<!--3: o portal azul para a Ala Leste so ativa com o selo-->
+		<transition>
+			<from>0</from>
+			<to>2</to>
+			<read>c</read>
+			<pop>E</pop>
+			<push>E</push>
+		</transition>
+		<!--4 a 6: pedacos da chave na Ala Oeste-->
+		<transition>
+			<from>1</from>
+			<to>1</to>
+			<read>a</read>
+			<pop>E</pop>
+			<push>CE</push>
+		</transition>
+		<transition>
+			<from>1</from>
+			<to>1</to>
+			<read>a</read>
+			<pop>C</pop>
+			<push>H</push>
+		</transition>
+		<transition>
+			<from>1</from>
+			<to>1</to>
+			<read>a</read>
+			<pop>H</pop>
+			<push>M</push>
+		</transition>
+		<!--7: grade da Ala Oeste para a Galeria Central-->
+		<transition>
+			<from>1</from>
+			<to>3</to>
+			<read>s</read>
+			<pop/>
+			<push/>
+		</transition>
+		<!--8 a 10: pedacos da chave na Ala Leste-->
+		<transition>
+			<from>2</from>
+			<to>2</to>
+			<read>a</read>
+			<pop>E</pop>
+			<push>CE</push>
+		</transition>
+		<transition>
+			<from>2</from>
+			<to>2</to>
+			<read>a</read>
+			<pop>C</pop>
+			<push>H</push>
+		</transition>
+		<transition>
+			<from>2</from>
+			<to>2</to>
+			<read>a</read>
+			<pop>H</pop>
+			<push>M</push>
+		</transition>
+		<!--11: grade da Ala Leste para a Galeria Central-->
+		<transition>
+			<from>2</from>
+			<to>3</to>
+			<read>s</read>
+			<pop/>
+			<push/>
+		</transition>
+		<!--12 a 14: pedacos da chave na Galeria Central-->
+		<transition>
+			<from>3</from>
+			<to>3</to>
+			<read>a</read>
+			<pop>E</pop>
+			<push>CE</push>
+		</transition>
+		<transition>
+			<from>3</from>
+			<to>3</to>
+			<read>a</read>
+			<pop>C</pop>
+			<push>H</push>
+		</transition>
+		<transition>
+			<from>3</from>
+			<to>3</to>
+			<read>a</read>
+			<pop>H</pop>
+			<push>M</push>
+		</transition>
+		<!--15: grade para o Salao da Porta-->
+		<transition>
+			<from>3</from>
+			<to>4</to>
+			<read>s</read>
+			<pop/>
+			<push/>
+		</transition>
+		<!--16: a porta so abre com a chave mestra-->
+		<transition>
+			<from>4</from>
+			<to>5</to>
+			<read>b</read>
+			<pop>M</pop>
+			<push/>
+		</transition>
+		<!--17: o selo libera o portal final-->
+		<transition>
+			<from>5</from>
+			<to>6</to>
+			<read>c</read>
+			<pop>E</pop>
+			<push/>
+		</transition>
+	</automaton>
+</structure>
