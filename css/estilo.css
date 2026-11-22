@@ -647,7 +647,7 @@ kbd {
 .jflap img { display: block; max-width: 100%; height: auto; background: #fff; border-radius: 3px; border: 1px solid var(--latao); }
 .jflap figcaption { margin-top: 8px; color: var(--osso-apagado); font-style: italic; }
 .jflap.faltando img { display: none; }
-.jflap.faltando figcaption::before { content: "A imagem exportada do JFLAP (img/diagrama-jflap.png) ainda não foi adicionada. "; color: var(--osso); font-style: normal; }
+.jflap.faltando figcaption::before { content: "A imagem exportada do JFLAP (img/masmorra-chave-partida.jff.png) ainda não foi adicionada. "; color: var(--osso); font-style: normal; }
 
 .rodape {
   max-width: 1480px;
