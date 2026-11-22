@@ -38,7 +38,7 @@
 
   var NO_MAPA = {
     '*': 'Encostar na estrela-selo, no meio da Entrada',
-    'a': 'Encostar num pedaço da chave (2 por sala de coleta)',
+    'a': 'Encostar num pedaço da chave (3 por sala de coleta)',
     's': 'Atravessar o corredor ou uma grade',
     'b': 'Encostar na porta do Salão',
     'c': 'Entrar no portal azul (Entrada) ou no portal final'

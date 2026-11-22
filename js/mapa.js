@@ -65,9 +65,11 @@
 
   var ITENS_INICIAIS = [
     { tipo: 'estrela', x: 21, y: 19 },
-    { tipo: 'pedaco', x: 4, y: 10 },  { tipo: 'pedaco', x: 9, y: 15 },     // Ala Oeste
-    { tipo: 'pedaco', x: 34, y: 10 }, { tipo: 'pedaco', x: 39, y: 15 },    // Ala Leste
-    { tipo: 'pedaco', x: 16, y: 10 }, { tipo: 'pedaco', x: 26, y: 13 }     // Galeria Central
+    // 3 pedaços em cada sala de coleta: qualquer divisão dos 3 encaixes entre
+    // a ala e a Galeria (3+0, 2+1, 1+2, 0+3) pode ser jogada andando.
+    { tipo: 'pedaco', x: 4, y: 10 },  { tipo: 'pedaco', x: 9, y: 15 },  { tipo: 'pedaco', x: 10, y: 9 },   // Ala Oeste
+    { tipo: 'pedaco', x: 34, y: 10 }, { tipo: 'pedaco', x: 39, y: 15 }, { tipo: 'pedaco', x: 40, y: 10 },  // Ala Leste
+    { tipo: 'pedaco', x: 16, y: 10 }, { tipo: 'pedaco', x: 26, y: 13 }, { tipo: 'pedaco', x: 22, y: 12 }   // Galeria Central
   ];
 
   // Arandelas com tochas, presas nas paredes (cada uma ilumina sua sala)

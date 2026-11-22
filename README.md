@@ -98,6 +98,7 @@ Notação do JFLAP: `entrada, desempilha ; empilha` (λ = vazio).
 - **A estrela fica no fundo (LIFO).** E só volta ao topo depois que a chave mestra é usada na porta, e é ela que libera o portal final.
 - **Ramificação com símbolos diferentes.** As duas saídas da Entrada usam `s` (corredor) e `c` (portal azul). Com o mesmo símbolo, o autômato seria não determinístico.
 - **Estado = sala.** Andar dentro da sala não muda o autômato; só as interações geram símbolos. As grades se fecham atrás do jogador, então o mapa e o autômato andam juntos.
+- **3 pedaços por sala de coleta.** Há 6 pedaços ao alcance em qualquer caminho, mas a chave só tem 3 encaixes. Assim, as 8 palavras aceitas pelo autômato (2 rotas × 4 divisões dos pedaços entre a ala e a Galeria) podem todas ser jogadas andando.
 - **Sem transição = rejeição**, nos dois modos, sempre com o motivo em linguagem do jogo e em notação formal.
 
 ## Estrutura e testes
